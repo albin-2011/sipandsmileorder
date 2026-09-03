@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sip&smile - Smart QR Dining & Kitchen Desk</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Hide scrollbar for category list */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-amber-950 text-amber-50 shadow-md sticky top-0 z-40 border-b border-amber-900/40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-amber-900/80 rounded-2xl border border-amber-700/60 shadow-inner flex items-center justify-center">
+          <!-- Coffee Icon SVG -->
+          <svg class="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="text-xl font-extrabold tracking-wide text-amber-100">
+              sip<span class="text-amber-400">&</span>smile
+            </h1>
+            <!-- Sparkles SVG -->
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z"/>
+            </svg>
+          </div>
+          <p class="text-[11px] text-amber-300/80 font-medium">Smart QR Dining & Kitchen Desk</p>
+        </div>
+      </div>
+
+      <!-- View Switcher -->
+      <div class="flex items-center bg-amber-900/60 p-1 rounded-xl border border-amber-800/60">
+        <button id="btnCustomerView" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition bg-amber-500 text-amber-950 shadow">
+          <!-- Smartphone SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12" y2="18"/>
+          </svg>
+          <span>Customer View</span>
+        </button>
+
+        <button id="btnAdminView" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition text-amber-200 hover:text-white">
+          <span id="adminLockIcon">
+            <!-- Lock SVG -->
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <span>Laptop Desk</span>
+          <span id="newOrderBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full animate-pulse font-bold">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Security Password Modal -->
+  <div id="passwordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div class="w-12 h-12 bg-amber-100 text-amber-900 rounded-full flex items-center justify-center mx-auto mb-3">
+        <!-- Key SVG -->
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="m13 11 4 4m0 0 2-2m-2 2 3 3"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-stone-900">sip&smile Admin</h3>
+      <p class="text-xs text-stone-500 mt-1">Laptop Kitchen Desk thurakkaan password enter cheyyuka.</p>
+
+      <form id="passwordForm" class="mt-4 space-y-3">
+        <input type="password" id="passwordInput" placeholder="Enter password..." class="w-full p-2.5 text-center text-sm border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500" autofocus>
+        <div id="passwordError" class="hidden text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-200"></div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btnCancelPassword" class="flex-1 bg-stone-200 hover:bg-stone-300 text-stone-700 py-2 rounded-xl text-xs font-semibold transition">Cancel</button>
+          <button type="submit" class="flex-1 bg-amber-900 hover:bg-amber-950 text-white py-2 rounded-xl text-xs font-bold transition shadow">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 1. CUSTOMER VIEW CONTAINER -->
+  <main id="customerViewSection" class="max-w-md mx-auto min-h-screen bg-stone-50 pb-28 border-x border-stone-200 shadow-xl relative">
+    
+    <!-- Table Indicator Bar -->
+    <div class="bg-amber-100/80 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs">
+      <div class="flex items-center space-x-1.5 text-amber-950 font-medium">
+        <!-- Layers SVG -->
+        <svg class="w-4 h-4 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+        <span id="activeTableText">Table: <strong>Choose table</strong></span>
+      </div>
+
+      <select id="customerTableSelect" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-xs text-amber-950 font-semibold focus:outline-none">
+        <option value="">Table choose cheyyuka</option>
+      </select>
+    </div>
+
+    <!-- Welcome Banner & Search -->
+    <div class="p-4 bg-gradient-to-r from-amber-950 via-amber-900 to-amber-950 text-white rounded-b-3xl shadow-sm">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="inline-flex items-center space-x-1 bg-amber-500/20 text-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-1 border border-amber-500/30">
+            <span>Welcome to sip&smile</span>
+          </div>
+          <h2 class="text-lg font-bold">Endhaanu Kazhikkaan Thalparyam?</h2>
+          <p class="text-xs text-amber-200/80 mt-0.5">Menu nokki order cheyyoo, staff udane table-il ethikkum!</p>
+        </div>
+        <div id="tableBadgeContainer" class="bg-amber-800/60 p-2.5 rounded-2xl text-center min-w-[55px] border border-amber-700/50">
+          <span class="block text-[9px] uppercase tracking-wider text-amber-300">Table</span>
+          <span id="tableBadgeNumber" class="text-lg font-black text-amber-100">-</span>
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="mt-3.5 relative">
+        <svg class="w-4 h-4 absolute left-3 top-2.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Item thiraku..." class="w-full pl-9 pr-3 py-1.5 text-sm bg-stone-900/60 text-white placeholder-stone-300 rounded-xl border border-amber-600/50 focus:outline-none focus:ring-1 focus:ring-amber-400">
+      </div>
+    </div>
+
+    <!-- Category Chips Container -->
+    <div id="categoryChips" class="px-4 py-3 flex space-x-2 overflow-x-auto no-scrollbar"></div>
+
+    <!-- Menu Items List Container -->
+    <div id="menuItemsContainer" class="px-4 py-2 space-y-3"></div>
+
+    <!-- Floating Cart Footer -->
+    <div id="floatingCart" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-2xl z-30 hidden">
+      <div class="mb-2">
+        <input type="text" id="orderNotesInput" placeholder="Special instruction (e.g. Panchasara kuravu mathi)" class="w-full text-xs p-2.5 rounded-xl border border-stone-300 focus:outline-none focus:border-amber-600">
+      </div>
+      <div class="flex items-center justify-between">
+        <div>
+          <span id="cartCountText" class="text-xs text-stone-500 block">0 items</span>
+          <span id="cartTotalText" class="text-lg font-black text-amber-950">₹0</span>
+        </div>
+        <button id="btnPlaceOrder" class="flex items-center space-x-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition active:scale-95">
+          <!-- Shopping bag SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span>Order Cheyyuka</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Customer Order Success Modal -->
+  <div id="orderSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+        <!-- Check SVG -->
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-stone-900">Order Labhichu!</h3>
+      <p class="text-xs text-stone-500 mt-1">Ningalude order <strong>sip&smile</strong> laptop desk-il live aayi labhichittundu. Staff udane ethikkum.</p>
+
+      <div class="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 my-4 text-left text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-stone-500">Order ID:</span>
+          <span id="modalOrderId" class="font-bold text-stone-800">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Table:</span>
+          <span id="modalTableName" class="font-bold text-amber-900">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Status:</span>
+          <span class="font-semibold text-emerald-700">Adukkalayilekku അയച്ചു</span>
+        </div>
+      </div>
+
+      <button id="btnCloseSuccessModal" class="w-full bg-amber-900 hover:bg-amber-950 text-white py-2.5 rounded-xl text-sm font-semibold transition shadow">Sheri, Nanni!</button>
+    </div>
+  </div>
+
+  <!-- 2. ADMIN / LAPTOP DESK VIEW -->
+  <main id="adminViewSection" class="max-w-7xl mx-auto px-4 py-6 hidden">
+    <!-- Admin Top Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-stone-300 pb-4">
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-amber-900 text-amber-200 rounded-2xl shadow">
+          <!-- Chef hat SVG -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6v-7.13zM6 17h12"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h2 class="text-xl font-black text-stone-900">sip&smile</h2>
+            <span class="text-xs bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-md">Laptop Desk</span>
+          </div>
+          <div class="flex items-center space-x-2 text-xs text-stone-500 mt-0.5">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>Cloud Live Sync Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Tab Switcher -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="tabBtnLiveOrders" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-amber-900 text-white shadow">
+          <!-- Bell SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span>Live Orders</span>
+          <span id="tabOrderCountBadge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold animate-pulse">0</span>
+        </button>
+
+        <button id="tabBtnTables" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-white text-stone-700 hover:bg-stone-200">
+          <!-- Layers SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          <span id="tabTableCountText">Tables & Links (0)</span>
+        </button>
+
+        <button id="tabBtnMenu" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-white text-stone-700 hover:bg-stone-200">
+          <!-- Utensils SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2M15 11v11M5 2v8a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2M8 13v9"/>
+          </svg>
+          <span id="tabMenuCountText">Menu Items (0)</span>
+        </button>
+
+        <button id="btnAdminLogout" class="flex items-center space-x-1 px-3 py-2 rounded-xl text-sm font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition">
+          <!-- Logout SVG -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+          <span>Lock</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab 1: Live Orders -->
+    <div id="adminTabContentOrders">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-lg font-bold text-stone-800">sip&smile Live Orders</h3>
+          <p class="text-xs text-stone-500">Customer phone vazhi order submit cheythaal automatic sound alert-ode koodi ivide kanikkum.</p>
+        </div>
+        <button id="btnTestSound" class="flex items-center space-x-1.5 bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs px-3 py-1.5 rounded-lg font-medium">
+          <!-- Volume SVG -->
+          <svg class="w-3.5 h-3.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <span>Test Sound</span>
+        </button>
+      </div>
+      <div id="liveOrdersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- Tab 2: Table Manager -->
+    <div id="adminTabContentTables" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm h-fit">
+        <h3 class="font-bold text-base text-stone-900 mb-1 flex items-center space-x-2">
+          <span>Puthiya Table Cherkkuka</span>
+        </h3>
+        <p class="text-xs text-stone-500 mb-4">Table add cheythu athinte target link copy cheythu QR code generator-il nalki stickers print edukkuka.</p>
+
+        <form id="addTableForm" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1">Table Number</label>
+            <input type="number" id="inputTableNumber" placeholder="e.g. 1" required class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1">Table Name / Location</label>
+            <input type="text" id="inputTableName" placeholder="e.g. Table 1 (Balcony)" class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600">
+          </div>
+          <button type="submit" class="w-full bg-amber-900 hover:bg-amber-950 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">Table Add Cheyyuka</button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="font-bold text-base text-stone-900">Current Tables & Target Links</h3>
+            <p class="text-xs text-stone-500">Ee target link copy cheythu Canva-yilo QR generator-ilo ittu print cheyyaam.</p>
+          </div>
+          <span id="tableBadgeCountHeader" class="text-xs bg-amber-100 text-amber-900 font-bold px-2 py-1 rounded-lg">0 Tables</span>
+        </div>
+        <div id="adminTablesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Menu Manager -->
+    <div id="adminTabContentMenu" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm h-fit">
+        <h3 class="font-bold text-base text-stone-900 mb-1 flex items-center space-x-2">
+          <span>sip&smile Item Cherkkuka</span>
+        </h3>
+        <p class="text-xs text-stone-500 mb-4">Add cheyyunna items udane thanne customer phoneyil kanikkum.</p>
+
+        <form id="addMenuItemForm" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1">Item Name</label>
+            <input type="text" id="inputItemName" placeholder="e.g. Special Coffee, Burger" required class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Price (₹)</label>
+              <input type="number" id="inputItemPrice" placeholder="e.g. 40" required class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Category</label>
+              <input type="text" id="inputItemCategory" value="Chaaya & Kaappi" placeholder="Category" class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1">Cheriya Vivaranam (Optional)</label>
+            <textarea id="inputItemDesc" placeholder="Item-ine kurich oru vari..." rows="2" class="w-full p-2.5 text-sm border border-stone-300 rounded-xl focus:outline-none focus:border-amber-600"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-amber-900 hover:bg-amber-950 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">Menu-ilekk Cherkkoo</button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-base text-stone-900">sip&smile Menu List</h3>
+          <span id="menuItemsHeaderCount" class="text-xs text-stone-500">Aake 0 items</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-stone-200 text-stone-500">
+                <th class="pb-2 font-semibold">Item</th>
+                <th class="pb-2 font-semibold">Category</th>
+                <th class="pb-2 font-semibold">Price</th>
+                <th class="pb-2 font-semibold text-center">Stock</th>
+                <th class="pb-2 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminMenuTableBody" class="divide-y divide-stone-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase SDK and Script Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKnx3UYlqfJHVoJU1v2hjKK8zpQ_0UQ0Q",
+      authDomain: "sip-and-smile-order-system.firebaseapp.com",
+      projectId: "sip-and-smile-order-system",
+      storageBucket: "sip-and-smile-order-system.firebasestorage.app",
+      messagingSenderId: "224124845567",
+      appId: "1:224124845567:web:c39f31f3cd9138cd87bbca"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = 'sip-and-smile-order-system';
+
+    // Application Global State
+    let currentUser = null;
+    let isAdminAuthenticated = false;
+    const ADMIN_PASSWORD = 'smile';
+
+    let tables = [];
+    let menuItems = [];
+    let orders = [];
+    let cart = [];
+
+    let selectedTableId = '';
+    let selectedCategory = 'All';
+    let searchQuery = '';
+    let adminTab = 'live-orders';
+
+    let isFirstLoad = true;
+    let prevOrderCount = 0;
+
+    const currentBaseUrl = window.location.origin + window.location.pathname;
+
+    function playAlertSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.45);
+      } catch (err) {
+        console.error('Audio alert error:', err);
+      }
+    }
+
+    async function initAuthentication() {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (err) {
+        console.error("Auth init error:", err);
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        attachFirestoreListeners();
+      }
+    });
+
+    initAuthentication();
+
+    function attachFirestoreListeners() {
+      // 1. Tables Listener
+      const tablesCol = collection(db, 'artifacts', appId, 'public', 'data', 'tables');
+      onSnapshot(tablesCol, (snap) => {
+        const loaded = [];
+        snap.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+        loaded.sort((a, b) => Number(a.number) - Number(b.number));
+        tables = loaded;
+
+        // URL table parameter check (?table=1)
+        const params = new URLSearchParams(window.location.search);
+        const tableParam = params.get('table');
+        if (tableParam) {
+          const matched = tables.find(t => String(t.number) === String(tableParam) || t.id === tableParam);
+          if (matched) selectedTableId = matched.id;
+        } else if (!selectedTableId && tables.length > 0) {
+          selectedTableId = tables[0].id;
+        }
+
+        renderCustomerTableControls();
+        renderAdminTables();
+        renderCustomerMenu();
+      }, (err) => console.error("Tables error:", err));
+
+      // 2. Menu Items Listener
+      const menuCol = collection(db, 'artifacts', appId, 'public', 'data', 'menuItems');
+      onSnapshot(menuCol, (snap) => {
+        const loaded = [];
+        snap.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+        menuItems = loaded;
+        renderCategoryChips();
+        renderCustomerMenu();
+        renderAdminMenu();
+      }, (err) => console.error("Menu error:", err));
+
+      // 3. Orders Listener
+      const ordersCol = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+      onSnapshot(ordersCol, (snap) => {
+        const loaded = [];
+        snap.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+        loaded.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        if (!isFirstLoad && loaded.length > prevOrderCount) {
+          playAlertSound();
+        }
+        isFirstLoad = false;
+        prevOrderCount = loaded.length;
+        orders = loaded;
+
+        updateOrderBadges();
+        renderLiveOrders();
+      }, (err) => console.error("Orders error:", err));
+    }
+
+    function renderCustomerTableControls() {
+      const select = document.getElementById('customerTableSelect');
+      select.innerHTML = '';
+
+      if (tables.length === 0) {
+        select.innerHTML = '<option value="">No tables</option>';
+        document.getElementById('activeTableText').innerHTML = '<span class="text-stone-600 font-semibold">Table choose cheyyuka</span>';
+        document.getElementById('tableBadgeNumber').textContent = '-';
+        return;
+      }
+
+      tables.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        if (t.id === selectedTableId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const activeTable = tables.find(t => t.id === selectedTableId) || tables[0];
+      if (activeTable) {
+        selectedTableId = activeTable.id;
+        document.getElementById('activeTableText').innerHTML = `Table: <strong>${activeTable.name}</strong>`;
+        document.getElementById('tableBadgeNumber').textContent = activeTable.number;
+      }
+    }
+
+    function renderCategoryChips() {
+      const chipContainer = document.getElementById('categoryChips');
+      const cats = ['All', ...new Set(menuItems.map(m => m.category).filter(Boolean))];
+      chipContainer.innerHTML = '';
+
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat === 'All' ? 'Ellaam (All)' : cat;
+        btn.className = `px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
+          selectedCategory === cat ? 'bg-amber-900 text-white shadow' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'
+        }`;
+        btn.onclick = () => {
+          selectedCategory = cat;
+          renderCategoryChips();
+          renderCustomerMenu();
+        };
+        chipContainer.appendChild(btn);
+      });
+    }
+
+    function renderCustomerMenu() {
+      const container = document.getElementById('menuItemsContainer');
+      container.innerHTML = '';
+
+      if (tables.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl p-6 border border-stone-200 my-4 shadow-sm">
+            <svg class="w-10 h-10 mx-auto text-amber-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <h3 class="font-bold text-stone-800 text-sm">Table assign cheythittilla</h3>
+            <p class="text-xs text-stone-500 mt-1">Dayavayi cafe staff-umayi bandhappaduka.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const filtered = menuItems.filter(item => {
+        const matchCat = selectedCategory === 'All' || item.category === selectedCategory;
+        const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl p-6 border border-stone-200 my-4 shadow-sm">
+            <svg class="w-10 h-10 mx-auto text-stone-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+            </svg>
+            <h3 class="font-bold text-stone-800 text-sm">sip&smile Menu-il items onnumilla!</h3>
+            <p class="text-xs text-stone-500 mt-1">Laptop desk vazhi items add cheythaal ivide thurannu varum.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const inCart = cart.find(c => c.id === item.id);
+        const card = document.createElement('div');
+        card.className = `bg-white p-3.5 rounded-2xl border transition shadow-sm flex justify-between items-center ${
+          !item.available ? 'opacity-60 bg-stone-100 border-stone-200' : 'border-stone-200 hover:border-amber-300'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex-1 pr-3">
+            <h3 class="font-semibold text-stone-900 text-sm">${item.name}</h3>
+            ${item.description ? `<p class="text-xs text-stone-500 line-clamp-1 mt-0.5">${item.description}</p>` : ''}
+            <div class="mt-1 font-bold text-amber-900 text-sm">₹${item.price}</div>
+          </div>
+          <div class="action-slot flex items-center"></div>
+        `;
+
+        const actionSlot = card.querySelector('.action-slot');
+        if (!item.available) {
+          actionSlot.innerHTML = `<span class="text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg">Sold Out</span>`;
+        } else if (inCart) {
+          actionSlot.innerHTML = `
+            <div class="flex items-center space-x-2 bg-amber-50 border border-amber-300 rounded-xl p-1">
+              <button class="btn-minus w-6 h-6 flex items-center justify-center bg-white text-amber-950 rounded-lg shadow-sm hover:bg-amber-100 font-bold">-</button>
+              <span class="text-xs font-bold text-amber-950 px-1">${inCart.quantity}</span>
+              <button class="btn-plus w-6 h-6 flex items-center justify-center bg-amber-800 text-white rounded-lg shadow-sm hover:bg-amber-900 font-bold">+</button>
+            </div>
+          `;
+          actionSlot.querySelector('.btn-minus').onclick = () => updateCartQuantity(item.id, -1);
+          actionSlot.querySelector('.btn-plus').onclick = () => updateCartQuantity(item.id, 1);
+        } else {
+          actionSlot.innerHTML = `
+            <button class="btn-add flex items-center space-x-1 bg-amber-900 hover:bg-amber-950 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium shadow-sm transition">
+              <span>+ Cherkkoo</span>
+            </button>
+          `;
+          actionSlot.querySelector('.btn-add').onclick = () => addToCart(item);
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function addToCart(item) {
+      if (!item.available) return;
+      const existing = cart.find(c => c.id === item.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ ...item, quantity: 1 });
+      }
+      renderCustomerMenu();
+      renderCartFooter();
+    }
+
+    function updateCartQuantity(itemId, delta) {
+      const idx = cart.findIndex(c => c.id === itemId);
+      if (idx !== -1) {
+        cart[idx].quantity += delta;
+        if (cart[idx].quantity <= 0) {
+          cart.splice(idx, 1);
+        }
+      }
+      renderCustomerMenu();
+      renderCartFooter();
+    }
+
+    function renderCartFooter() {
+      const footer = document.getElementById('floatingCart');
+      if (cart.length === 0) {
+        footer.classList.add('hidden');
+        return;
+      }
+      footer.classList.remove('hidden');
+
+      const count = cart.reduce((acc, c) => acc + c.quantity, 0);
+      const total = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+      const activeTable = tables.find(t => t.id === selectedTableId);
+
+      document.getElementById('cartCountText').textContent = `${count} item${count > 1 ? 's' : ''} • ${activeTable ? activeTable.name : ''}`;
+      document.getElementById('cartTotalText').textContent = `₹${total}`;
+    }
+
+    // Place Order to Firebase
+    async function placeOrder() {
+      if (cart.length === 0 || !currentUser) return;
+      const activeTable = tables.find(t => t.id === selectedTableId);
+      const newOrderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+      const total = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+      const notes = document.getElementById('orderNotesInput').value.trim();
+
+      const orderData = {
+        orderId: newOrderId,
+        tableId: selectedTableId || 'unknown',
+        tableName: activeTable ? activeTable.name : 'Unknown Table',
+        tableNumber: activeTable ? activeTable.number : '?',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        items: cart.map(c => ({ id: c.id, name: c.name, quantity: c.quantity, price: c.price })),
+        notes: notes,
+        total: total,
+        status: 'Pudhiya Order',
+        createdAt: Date.now()
+      };
+
+      try {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', newOrderId), orderData);
+        document.getElementById('modalOrderId').textContent = newOrderId;
+        document.getElementById('modalTableName').textContent = activeTable ? activeTable.name : '';
+        document.getElementById('orderSuccessModal').classList.remove('hidden');
+
+        cart = [];
+        document.getElementById('orderNotesInput').value = '';
+        renderCustomerMenu();
+        renderCartFooter();
+      } catch (err) {
+        console.error("Order error:", err);
+      }
+    }
+
+    function updateOrderBadges() {
+      const newOrdersCount = orders.filter(o => o.status === 'Pudhiya Order').length;
+      const badgeNav = document.getElementById('newOrderBadge');
+      const badgeTab = document.getElementById('tabOrderCountBadge');
+
+      if (newOrdersCount > 0) {
+        badgeNav.textContent = newOrdersCount;
+        badgeNav.classList.remove('hidden');
+        badgeTab.textContent = newOrdersCount;
+        badgeTab.classList.remove('hidden');
+      } else {
+        badgeNav.classList.add('hidden');
+        badgeTab.classList.add('hidden');
+      }
+    }
+
+    function renderLiveOrders() {
+      const container = document.getElementById('liveOrdersContainer');
+      container.innerHTML = '';
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl p-12 text-center border border-dashed border-stone-300 shadow-sm">
+            <svg class="w-12 h-12 mx-auto text-stone-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6v-7.13z"/>
+            </svg>
+            <p class="text-stone-500 font-medium">Orders onnum vannittilla.</p>
+            <p class="text-xs text-stone-400 mt-1">Customer view vazhi oru test order submit cheythu nokkoo!</p>
+          </div>
+        `;
+        return;
+      }
+
+      orders.forEach(ord => {
+        const isNew = ord.status === 'Pudhiya Order';
+        const isCooking = ord.status === 'Adukkalayil (Cooking)';
+        const isServed = ord.status === 'Vilambi (Served)';
+        const isComplete = ord.status === 'Complete aayi';
+
+        const card = document.createElement('div');
+        card.className = `bg-white rounded-2xl border-2 transition shadow-sm overflow-hidden flex flex-col justify-between ${
+          isNew ? 'border-red-500 ring-2 ring-red-200 animate-pulse' :
+          isCooking ? 'border-amber-400' :
+          isServed ? 'border-emerald-500' : 'border-stone-200 opacity-60'
+        }`;
+
+        card.innerHTML = `
+          <div class="p-3.5 border-b flex justify-between items-center ${
+            isNew ? 'bg-red-50' : isCooking ? 'bg-amber-50' : 'bg-stone-50'
+          }">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-black text-stone-900">${ord.orderId}</span>
+                <span class="text-xs text-stone-400">• ${ord.time}</span>
+              </div>
+              <span class="text-xs font-bold text-amber-900 block mt-0.5">${ord.tableName} (Table #${ord.tableNumber})</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                isNew ? 'bg-red-600 text-white' :
+                isCooking ? 'bg-amber-600 text-white' :
+                isServed ? 'bg-emerald-600 text-white' : 'bg-stone-600 text-white'
+              }">${ord.status}</span>
+              <button class="btn-delete-order text-stone-400 hover:text-red-600 p-1" title="Clear Order">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-2 flex-1">
+            <div class="space-y-1.5">
+              ${(ord.items || []).map(it => `
+                <div class="flex justify-between items-center text-sm">
+                  <span class="font-semibold text-stone-800">${it.quantity}x ${it.name}</span>
+                  <span class="text-stone-500 text-xs">₹${it.price * it.quantity}</span>
+                </div>
+              `).join('')}
+            </div>
+            ${ord.notes ? `<div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-xs text-amber-900 mt-2"><strong>Note:</strong> ${ord.notes}</div>` : ''}
+            <div class="pt-3 border-t border-stone-100 flex justify-between items-center font-bold text-stone-900">
+              <span>Total:</span>
+              <span class="text-base text-amber-900">₹${ord.total}</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-stone-50 border-t border-stone-200 flex gap-2">
+            ${isNew ? `<button class="btn-status w-full bg-amber-800 hover:bg-amber-900 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Adukkalayil (Cooking)">Accept & Cook</button>` : ''}
+            ${isCooking ? `<button class="btn-status w-full bg-blue-700 hover:bg-blue-800 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Vilambi (Served)">Table-il Ethichu (Served)</button>` : ''}
+            ${isServed ? `<button class="btn-status w-full bg-emerald-700 hover:bg-emerald-800 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Complete aayi">Bill Paid & Close</button>` : ''}
+            ${isComplete ? `<span class="w-full text-center text-xs text-stone-500 py-1 font-semibold">Order Theernnittundu ✓</span>` : ''}
+          </div>
+        `;
+
+        card.querySelector('.btn-delete-order').onclick = async () => {
+          if (!currentUser) return;
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', ord.id));
+        };
+
+        const statusBtn = card.querySelector('.btn-status');
+        if (statusBtn) {
+          statusBtn.onclick = async () => {
+            if (!currentUser) return;
+            const nextStatus = statusBtn.getAttribute('data-status');
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', ord.id), { status: nextStatus });
+          };
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderAdminTables() {
+      const container = document.getElementById('adminTablesContainer');
+      document.getElementById('tableBadgeCountHeader').textContent = `${tables.length} Tables`;
+      document.getElementById('tabTableCountText').textContent = `Tables & Links (${tables.length})`;
+      container.innerHTML = '';
+
+      if (tables.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-stone-400 text-xs">Tables onnum cherthittilla. Left sidil ninnu add cheyyoo!</div>`;
+        return;
+      }
+
+      tables.forEach(tbl => {
+        const tableUrl = `${currentBaseUrl}?table=${tbl.number}`;
+        const card = document.createElement('div');
+        card.className = 'border border-stone-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition bg-stone-50';
+
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="bg-amber-900 text-white text-xs font-black px-2.5 py-0.5 rounded-md">Table #${tbl.number}</span>
+              <button class="btn-del-table text-red-500 hover:text-red-700 p-1" title="Table Remove Cheyyuka">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+            <h4 class="font-bold text-stone-900 text-sm mt-2">${tbl.name}</h4>
+            <div class="mt-3 bg-white p-2.5 rounded-xl border border-stone-200 text-xs text-stone-600">
+              <span class="text-[11px] text-stone-400 block mb-1">QR Code Target Link:</span>
+              <code class="text-[11px] bg-stone-100 p-1.5 rounded-lg block truncate select-all text-amber-950 font-mono">${tableUrl}</code>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <button class="btn-copy-link flex-1 bg-amber-900 hover:bg-amber-950 text-white text-xs py-2 rounded-xl font-semibold transition shadow-sm">
+              Link Copy Cheyyoo
+            </button>
+            <button class="btn-test-table bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs px-3.5 py-2 rounded-xl font-semibold transition">
+              Test
+            </button>
+          </div>
+        `;
+
+        card.querySelector('.btn-del-table').onclick = async () => {
+          if (!currentUser) return;
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tables', tbl.id));
+        };
+
+        const copyBtn = card.querySelector('.btn-copy-link');
+        copyBtn.onclick = () => {
+          const temp = document.createElement('input');
+          temp.value = tableUrl;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand('copy');
+          document.body.removeChild(temp);
+          copyBtn.textContent = 'Copied! ✓';
+          copyBtn.className = 'flex-1 bg-emerald-600 text-white text-xs py-2 rounded-xl font-semibold transition shadow-sm';
+          setTimeout(() => {
+            copyBtn.textContent = 'Link Copy Cheyyoo';
+            copyBtn.className = 'flex-1 bg-amber-900 hover:bg-amber-950 text-white text-xs py-2 rounded-xl font-semibold transition shadow-sm';
+          }, 2500);
+        };
+
+        card.querySelector('.btn-test-table').onclick = () => {
+          selectedTableId = tbl.id;
+          switchView('customer');
+        };
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderAdminMenu() {
+      const tbody = document.getElementById('adminMenuTableBody');
+      document.getElementById('menuItemsHeaderCount').textContent = `Aake ${menuItems.length} items`;
+      document.getElementById('tabMenuCountText').textContent = `Menu Items (${menuItems.length})`;
+      tbody.innerHTML = '';
+
+      if (menuItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-stone-400 text-xs">Menu-il items onnumilla. Puthiyath add cheyyoo!</td></tr>`;
+        return;
+      }
+
+      menuItems.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-stone-50';
+        tr.innerHTML = `
+          <td class="py-2.5 font-medium text-stone-900">
+            <div>${item.name}</div>
+            ${item.description ? `<div class="text-[10px] text-stone-400">${item.description}</div>` : ''}
+          </td>
+          <td class="py-2.5 text-stone-600">${item.category}</td>
+          <td class="py-2.5 font-bold text-amber-900">₹${item.price}</td>
+          <td class="py-2.5 text-center">
+            <button class="btn-toggle-stock px-2.5 py-1 rounded-full text-[10px] font-bold transition ${
+              item.available ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-red-100 text-red-800 hover:bg-red-200'
+            }">
+              ${item.available ? 'In Stock ✓' : 'Sold Out ✕'}
+            </button>
+          </td>
+          <td class="py-2.5 text-right">
+            <button class="btn-del-item text-stone-400 hover:text-red-600 p-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </td>
+        `;
+
+        tr.querySelector('.btn-toggle-stock').onclick = async () => {
+          if (!currentUser) return;
+          await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menuItems', item.id), { available: !item.available });
+        };
+
+        tr.querySelector('.btn-del-item').onclick = async () => {
+          if (!currentUser) return;
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menuItems', item.id));
+        };
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // View Switcher Handlers
+    function switchView(view) {
+      const custSection = document.getElementById('customerViewSection');
+      const adminSection = document.getElementById('adminViewSection');
+      const btnCust = document.getElementById('btnCustomerView');
+      const btnAdm = document.getElementById('btnAdminView');
+
+      if (view === 'customer') {
+        custSection.classList.remove('hidden');
+        adminSection.classList.add('hidden');
+        btnCust.className = 'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition bg-amber-500 text-amber-950 shadow';
+        btnAdm.className = 'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition text-amber-200 hover:text-white';
+      } else {
+        custSection.classList.add('hidden');
+        adminSection.classList.remove('hidden');
+        btnAdm.className = 'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition bg-amber-500 text-amber-950 shadow';
+        btnCust.className = 'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition text-amber-200 hover:text-white';
+      }
+    }
+
+    document.getElementById('btnCustomerView').onclick = () => switchView('customer');
+
+    document.getElementById('btnAdminView').onclick = () => {
+      if (isAdminAuthenticated) {
+        switchView('admin');
+      } else {
+        document.getElementById('passwordError').classList.add('hidden');
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordModal').classList.remove('hidden');
+        document.getElementById('passwordInput').focus();
+      }
+    };
+
+    document.getElementById('btnCancelPassword').onclick = () => {
+      document.getElementById('passwordModal').classList.add('hidden');
+    };
+
+    document.getElementById('passwordForm').onsubmit = (e) => {
+      e.preventDefault();
+      const val = document.getElementById('passwordInput').value.trim();
+      if (val === ADMIN_PASSWORD) {
+        isAdminAuthenticated = true;
+        document.getElementById('passwordModal').classList.add('hidden');
+        document.getElementById('adminLockIcon').innerHTML = `
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        `;
+        playAlertSound();
+        switchView('admin');
+      } else {
+        const err = document.getElementById('passwordError');
+        err.textContent = 'Thettaya Password! Veendum shramikkuka.';
+        err.classList.remove('hidden');
+      }
+    };
+
+    document.getElementById('btnAdminLogout').onclick = () => {
+      isAdminAuthenticated = false;
+      document.getElementById('adminLockIcon').innerHTML = `
+        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      `;
+      switchView('customer');
+    };
+
+    // Customer Listeners
+    document.getElementById('customerTableSelect').onchange = (e) => {
+      selectedTableId = e.target.value;
+      const activeTable = tables.find(t => t.id === selectedTableId);
+      if (activeTable) {
+        document.getElementById('activeTableText').innerHTML = `Table: <strong>${activeTable.name}</strong>`;
+        document.getElementById('tableBadgeNumber').textContent = activeTable.number;
+      }
+      renderCartFooter();
+    };
+
+    document.getElementById('searchInput').oninput = (e) => {
+      searchQuery = e.target.value;
+      renderCustomerMenu();
+    };
+
+    document.getElementById('btnPlaceOrder').onclick = placeOrder;
+
+    document.getElementById('btnCloseSuccessModal').onclick = () => {
+      document.getElementById('orderSuccessModal').classList.add('hidden');
+    };
+
+    document.getElementById('btnTestSound').onclick = playAlertSound;
+
+    // Admin Tab Navigation
+    function switchAdminTab(tab) {
+      adminTab = tab;
+      const contentOrders = document.getElementById('adminTabContentOrders');
+      const contentTables = document.getElementById('adminTabContentTables');
+      const contentMenu = document.getElementById('adminTabContentMenu');
+
+      const btnOrders = document.getElementById('tabBtnLiveOrders');
+      const btnTables = document.getElementById('tabBtnTables');
+      const btnMenu = document.getElementById('tabBtnMenu');
+
+      [contentOrders, contentTables, contentMenu].forEach(c => c.classList.add('hidden'));
+      [btnOrders, btnTables, btnMenu].forEach(b => {
+        b.className = 'flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-white text-stone-700 hover:bg-stone-200';
+      });
+
+      if (tab === 'live-orders') {
+        contentOrders.classList.remove('hidden');
+        btnOrders.className = 'flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-amber-900 text-white shadow';
+      } else if (tab === 'tables') {
+        contentTables.classList.remove('hidden');
+        btnTables.className = 'flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-amber-900 text-white shadow';
+      } else {
+        contentMenu.classList.remove('hidden');
+        btnMenu.className = 'flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-amber-900 text-white shadow';
+      }
+    }
+
+    document.getElementById('tabBtnLiveOrders').onclick = () => switchAdminTab('live-orders');
+    document.getElementById('tabBtnTables').onclick = () => switchAdminTab('tables');
+    document.getElementById('tabBtnMenu').onclick = () => switchAdminTab('menu');
+
+    // Admin Add Table Form Submit
+    document.getElementById('addTableForm').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+      const num = parseInt(document.getElementById('inputTableNumber').value);
+      const name = document.getElementById('inputTableName').value.trim() || `Table ${num}`;
+      const docId = `table_${num}_${Date.now()}`;
+
+      try {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tables', docId), {
+          number: num,
+          name: name,
+          status: 'Active',
+          createdAt: Date.now()
+        });
+        document.getElementById('inputTableNumber').value = '';
+        document.getElementById('inputTableName').value = '';
+      } catch (err) {
+        console.error("Add table error:", err);
+      }
+    };
+
+    // Admin Add Menu Item Form Submit
+    document.getElementById('addMenuItemForm').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+      const name = document.getElementById('inputItemName').value.trim();
+      const price = parseFloat(document.getElementById('inputItemPrice').value);
+      const category = document.getElementById('inputItemCategory').value.trim() || 'General';
+      const desc = document.getElementById('inputItemDesc').value.trim() || 'Ruchikaramaya special item';
+      const docId = `item_${Date.now()}`;
+
+      try {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menuItems', docId), {
+          name, price, category, description: desc, available: true, createdAt: Date.now()
+        });
+        document.getElementById('inputItemName').value = '';
+        document.getElementById('inputItemPrice').value = '';
+        document.getElementById('inputItemDesc').value = '';
+      } catch (err) {
+        console.error("Add menu error:", err);
+      }
+    };
+  </script>
+</body>
+</html>
