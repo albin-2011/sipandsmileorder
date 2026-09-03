@@ -17,7 +17,7 @@
     body {
       font-family: 'Inter', sans-serif;
     }
-    /* Hide scrollbar for category list */
+    /* Hide scrollbar for smooth UI */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -79,7 +79,7 @@
     </div>
   </header>
 
-  <!-- Admin Security Password Modal -->
+  <!-- Admin Security Password Modal (Password: smile) -->
   <div id="passwordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
       <div class="w-12 h-12 bg-amber-100 text-amber-900 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -261,7 +261,7 @@
         </button>
 
         <button id="tabBtnProfit" class="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition bg-white text-stone-700 hover:bg-stone-200">
-          <!-- Currency / Chart SVG -->
+          <!-- Currency SVG -->
           <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 12v-2m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
@@ -481,7 +481,7 @@
         </div>
       </div>
 
-      <!-- Master Control Form (Only usable when Master Code is entered) -->
+      <!-- Master Control Form (Master Code enter cheythaal maathram visible) -->
       <div id="masterControlSection" class="hidden bg-white p-5 rounded-2xl border-2 border-amber-500 shadow-sm">
         <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-4">
           <div>
@@ -606,6 +606,7 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Real Firebase configuration for sip&smile
     const firebaseConfig = {
       apiKey: "AIzaSyBKnx3UYlqfJHVoJU1v2hjKK8zpQ_0UQ0Q",
       authDomain: "sip-and-smile-order-system.firebaseapp.com",
