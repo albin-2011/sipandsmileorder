@@ -24,6 +24,34 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* ========================================== */
+    /* THERMAL BILLING MACHINE PRINT STYLES       */
+    /* ========================================== */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #thermalReceiptContainer, #thermalReceiptContainer * {
+        visibility: visible !important;
+      }
+      #thermalReceiptContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 78mm;
+        margin: 0;
+        padding: 4mm;
+        display: block !important;
+        font-family: 'Courier New', Courier, monospace;
+        color: #000000;
+        background: #ffffff;
+      }
+      @page {
+        margin: 0;
+        size: auto;
+      }
+    }
   </style>
 </head>
 <body class="bg-stone-100 text-stone-800 min-h-screen">
@@ -53,7 +81,7 @@
         </div>
       </div>
 
-      <!-- Admin Status / Quick Actions (Only visible in ?admin=true mode) -->
+      <!-- Admin Status / Quick Actions (Only in ?admin=true mode) -->
       <div id="adminHeaderControls" class="hidden flex items-center space-x-2">
         <span class="text-xs bg-amber-900 text-amber-200 font-semibold px-3 py-1.5 rounded-xl border border-amber-700/60 flex items-center space-x-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -156,6 +184,49 @@
       </div>
 
       <button id="btnCloseSuccessModal" class="w-full bg-amber-900 hover:bg-amber-950 text-white py-2.5 rounded-xl text-sm font-semibold transition shadow">Sheri, Nanni!</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- THERMAL RECEIPT SLIP (BILLING MACHINE PRINT)-->
+  <!-- ========================================== -->
+  <div id="thermalReceiptContainer" class="hidden text-black bg-white p-2">
+    <div class="text-center pb-2 border-b border-dashed border-black">
+      <h2 class="text-base font-black uppercase tracking-wider">sip&smile CAFE</h2>
+      <p class="text-[11px]">Smart Dining & Fresh Bakes</p>
+      <p id="receiptDateTime" class="text-[10px] mt-1">-</p>
+    </div>
+
+    <div class="py-1.5 text-[11px] border-b border-dashed border-black flex justify-between">
+      <span>Order: <strong id="receiptOrderId">-</strong></span>
+      <span>Table: <strong id="receiptTableNumber">-</strong></span>
+    </div>
+
+    <!-- Items List -->
+    <div class="py-2 text-[11px] border-b border-dashed border-black">
+      <div class="flex justify-between font-bold pb-1 text-[10px] uppercase border-b border-black/30">
+        <span>Item</span>
+        <span>Qty x Rate</span>
+        <span>Total</span>
+      </div>
+      <div id="receiptItemsList" class="space-y-1 pt-1.5 font-mono"></div>
+    </div>
+
+    <!-- Subtotal & Grand Total -->
+    <div class="py-2 border-b border-dashed border-black text-xs space-y-1">
+      <div id="receiptNotesBox" class="text-[10px] italic pb-1 hidden">
+        Note: <span id="receiptNotesText"></span>
+      </div>
+      <div class="flex justify-between items-center text-sm font-black pt-1">
+        <span>GRAND TOTAL:</span>
+        <span id="receiptTotalAmount" class="text-base">₹0</span>
+      </div>
+    </div>
+
+    <!-- Bill Footer -->
+    <div class="text-center pt-2 text-[10px] leading-tight">
+      <p class="font-bold">*** THANK YOU! VISIT AGAIN ***</p>
+      <p class="text-[9px] mt-0.5">Please pay at counter or UPI</p>
     </div>
   </div>
 
@@ -625,6 +696,46 @@
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminUrl = urlParams.get('admin') === 'true';
 
+    // Thermal Printer Utility Function
+    function printThermalBill(ord) {
+      if (!ord) return;
+      try {
+        document.getElementById('receiptOrderId').textContent = ord.orderId || '-';
+        document.getElementById('receiptTableNumber').textContent = ord.tableNumber ? `#${ord.tableNumber}` : (ord.tableName || '-');
+        document.getElementById('receiptDateTime').textContent = `${new Date().toLocaleDateString('en-GB')} | ${ord.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+        
+        const itemsContainer = document.getElementById('receiptItemsList');
+        itemsContainer.innerHTML = '';
+        
+        (ord.items || []).forEach(it => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center py-0.5';
+          row.innerHTML = `
+            <span class="truncate pr-1">${it.name}</span>
+            <span class="whitespace-nowrap">${it.quantity} x ₹${it.price}</span>
+            <span class="font-bold pl-1">₹${it.quantity * it.price}</span>
+          `;
+          itemsContainer.appendChild(row);
+        });
+
+        // Notes
+        const notesBox = document.getElementById('receiptNotesBox');
+        if (ord.notes) {
+          notesBox.classList.remove('hidden');
+          document.getElementById('receiptNotesText').textContent = ord.notes;
+        } else {
+          notesBox.classList.add('hidden');
+        }
+
+        document.getElementById('receiptTotalAmount').textContent = `₹${ord.total || 0}`;
+
+        // Trigger native printer dialog
+        window.print();
+      } catch (err) {
+        console.error("Thermal print error:", err);
+      }
+    }
+
     // Audio Alert function (Only plays on Laptop Desk)
     function playAlertSound() {
       if (!isAdminAuthenticated && !isAdminUrl) return;
@@ -750,19 +861,16 @@
     // Setup initial view mode (Customer View vs ?admin=true Laptop Desk)
     function setupInitialView() {
       if (isAdminUrl) {
-        // Laptop Desk URL opened
         document.getElementById('headerSubtitle').textContent = "Kitchen Desk & Accounts";
         document.getElementById('customerViewSection').classList.add('hidden');
         document.getElementById('adminViewSection').classList.remove('hidden');
         document.getElementById('adminHeaderControls').classList.remove('hidden');
 
-        // Prompt password modal
         document.getElementById('passwordError').classList.add('hidden');
         document.getElementById('passwordInput').value = '';
         document.getElementById('passwordModal').classList.remove('hidden');
         document.getElementById('passwordInput').focus();
       } else {
-        // Customer Mobile View
         document.getElementById('headerSubtitle').textContent = "Smart QR Dining";
         document.getElementById('customerViewSection').classList.remove('hidden');
         document.getElementById('adminViewSection').classList.add('hidden');
@@ -935,16 +1043,35 @@
       document.getElementById('cartTotalText').textContent = `₹${total}`;
     }
 
-    // Customer Place Order to Database
+    // Customer Place Order to Database (Starts sequentially from 1)
     async function placeOrder() {
       if (cart.length === 0 || !currentUser) return;
       const activeTable = tables.find(t => t.id === selectedTableId);
-      const newOrderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      // Order ID 1 thottu start aavanulla calculation logic
+      let maxNum = 0;
+      [...orders, ...deletedOrders].forEach(o => {
+        if (typeof o.orderNumber === 'number' && o.orderNumber > maxNum) {
+          maxNum = o.orderNumber;
+        } else if (o.orderId && typeof o.orderId === 'string') {
+          const match = o.orderId.match(/^ORD-(\d+)$/i);
+          if (match) {
+            const parsed = parseInt(match[1], 10);
+            if (parsed < 1000 && parsed > maxNum) {
+              maxNum = parsed;
+            }
+          }
+        }
+      });
+
+      const nextOrderNum = maxNum + 1; // 1, 2, 3...
+      const newOrderId = `ORD-${nextOrderNum}`;
       const total = cart.reduce((acc, c) => acc + (c.price * c.quantity), 0);
       const notes = document.getElementById('orderNotesInput').value.trim();
 
       const orderData = {
         orderId: newOrderId,
+        orderNumber: nextOrderNum,
         tableId: selectedTableId || 'unknown',
         tableName: activeTable ? activeTable.name : 'Unknown Table',
         tableNumber: activeTable ? activeTable.number : '?',
@@ -1058,18 +1185,39 @@
           <div class="p-3 bg-stone-50 border-t border-stone-200 flex gap-2">
             ${isNew ? `<button class="btn-status w-full bg-amber-800 hover:bg-amber-900 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Adukkalayil (Cooking)">Accept & Cook</button>` : ''}
             ${isCooking ? `<button class="btn-status w-full bg-blue-700 hover:bg-blue-800 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Vilambi (Served)">Table-il Ethichu (Served)</button>` : ''}
-            ${isServed ? `<button class="btn-status w-full bg-emerald-700 hover:bg-emerald-800 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Complete aayi">Bill Paid & Close</button>` : ''}
-            ${isComplete ? `<span class="w-full text-center text-xs text-stone-500 py-1 font-semibold">Order Theernnittundu ✓</span>` : ''}
+            ${isServed ? `
+              <div class="flex w-full gap-1.5">
+                <button class="btn-print-bill bg-stone-800 hover:bg-black text-white px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1" title="Print Bill Only">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                  </svg>
+                  <span>Bill</span>
+                </button>
+                <button class="btn-status flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-1.5 rounded-xl text-xs font-bold transition shadow-sm" data-status="Complete aayi">
+                  🖨️ Bill Paid & Print
+                </button>
+              </div>
+            ` : ''}
+            ${isComplete ? `
+              <div class="flex items-center justify-between w-full">
+                <span class="text-xs text-stone-500 py-1 font-semibold">Order Theernnittundu ✓</span>
+                <button class="btn-print-bill bg-stone-200 hover:bg-stone-300 text-stone-800 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+                  <span>Re-Print 🖨️</span>
+                </button>
+              </div>
+            ` : ''}
           </div>
         `;
 
-        // When order is deleted, save into deletedOrders audit log
         card.querySelector('.btn-delete-order').onclick = async () => {
           if (!currentUser) return;
           try {
             const auditId = `DEL_${ord.orderId}_${Date.now()}`;
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'deletedOrders', auditId), {
               orderId: ord.orderId,
+              orderNumber: ord.orderNumber || 0,
               tableName: ord.tableName || 'Unknown Table',
               tableNumber: ord.tableNumber || '-',
               total: ord.total || 0,
@@ -1091,7 +1239,19 @@
           statusBtn.onclick = async () => {
             if (!currentUser) return;
             const nextStatus = statusBtn.getAttribute('data-status');
+            
+            if (nextStatus === 'Complete aayi') {
+              printThermalBill(ord);
+            }
+            
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', ord.id), { status: nextStatus });
+          };
+        }
+
+        const printBtn = card.querySelector('.btn-print-bill');
+        if (printBtn) {
+          printBtn.onclick = () => {
+            printThermalBill(ord);
           };
         }
 
@@ -1309,9 +1469,17 @@
           tr.innerHTML = `
             <td class="py-2.5 font-semibold text-stone-900">${ord.orderId}<br><span class="text-[10px] text-stone-400">${ord.time || ''}</span></td>
             <td class="py-2.5 text-stone-700">${ord.tableName || '-'}</td>
-            <td class="py-2.5 text-stone-500 max-w-[150px] truncate" title="${itemsSummary}">${itemsSummary}</td>
-            <td class="py-2.5 font-bold text-emerald-800 text-right">₹${ord.total}</td>
+            <td class="py-2.5 text-stone-500 max-w-[140px] truncate" title="${itemsSummary}">${itemsSummary}</td>
+            <td class="py-2.5 text-right whitespace-nowrap">
+              <span class="font-bold text-emerald-800 mr-2">₹${ord.total}</span>
+              <button class="btn-reprint-row bg-stone-100 hover:bg-stone-200 text-stone-800 px-2 py-0.5 rounded text-[11px] font-semibold transition border border-stone-300">
+                🖨️
+              </button>
+            </td>
           `;
+          tr.querySelector('.btn-reprint-row').onclick = () => {
+            printThermalBill(ord);
+          };
           completedTbody.appendChild(tr);
         });
       }
@@ -1353,7 +1521,7 @@
     };
 
     document.getElementById('btnCancelPassword').onclick = () => {
-      window.location.href = currentBaseUrl; // Redirect to clean customer view
+      window.location.href = currentBaseUrl;
     };
 
     document.getElementById('btnAdminLogout').onclick = () => {
